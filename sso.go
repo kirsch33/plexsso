@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	"strings"
 	_ "os"
 	
 	"github.com/caddyserver/caddy/v2"
@@ -112,7 +111,7 @@ func (s *plexsso) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 }
 
 var (
-	_ caddyfile.Provisioner       = (*plexsso)(nil)
+	_ caddy.Provisioner           = (*plexsso)(nil)
 	_ caddyhttp.MiddlewareHandler = (*plexsso)(nil)
 	_ caddyfile.Unmarshaler       = (*plexsso)(nil)
 )
