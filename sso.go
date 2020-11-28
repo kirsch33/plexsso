@@ -66,7 +66,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 	
 	if u=="https://ombi.greatwhitelab.net/" && h=="https://greatwhitelab.net/auth/portal" {
 		
-		req_body, err := json.Marshal(map[string]string{"plexToken": s.token})
+		req_body, err := json.Marshal(map[string]string{"plexToken": s.plex_token})
 		
 		if err != nil {
 			return fmt.Errorf("Token formatting error: %s", err)
