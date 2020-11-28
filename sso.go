@@ -6,14 +6,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	"os"
+	"strings"
+	_ "os"
 	
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	_ "go.uber.org/zap/zapcore"
 )
 
 type plexsso struct {
@@ -32,6 +33,7 @@ func init() {
 
 func (s *plexsso) Provision(ctx caddy.Context) error {
 	s.logger = ctx.Logger(s) 
+	return nil
 }
 
 func (plexsso) CaddyModule() caddy.ModuleInfo {
@@ -82,7 +84,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		
 		res_body, err := ioutil.ReadAll(resp.Body)
 		
-		s.logger.Debug("kodiak debug log", zap.String("res_body",res_body))
+		s.logger.Debug("kodiak debug log", zap.String("res_body",string(res_body)))
 		
 		return handler.ServeHTTP(w, req) 
 	}
@@ -110,7 +112,7 @@ func (s *plexsso) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 }
 
 var (
-	_ caddyfile.Provision         = (*plexsso)(nil)
+	_ caddyfile.Provisioner       = (*plexsso)(nil)
 	_ caddyhttp.MiddlewareHandler = (*plexsso)(nil)
 	_ caddyfile.Unmarshaler       = (*plexsso)(nil)
 )
