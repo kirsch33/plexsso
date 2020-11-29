@@ -6,19 +6,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	//"strconv"
-	//"os"
 	
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"go.uber.org/zap"
-	//"go.uber.org/zap/zapcore"
 )
 
 type plexsso struct {
 	TokenValue string
+	OmbiHost string
 	logger *zap.Logger
 }
 
@@ -48,13 +46,6 @@ func parseCaddyfileHandler(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler,
 	return s, err
 }
 
-func parseStringArg(d *caddyfile.Dispenser, out *string) error {
-	if !d.Args(out) {
-		return d.ArgErr()
-	}
-	return nil
-}
-
 func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler caddyhttp.Handler) error {
 	
 	h := req.Header.Get("Referer")
@@ -69,22 +60,33 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			return fmt.Errorf("Token formatting error: %s", err)
 		}
 		
-		resp, err := http.Post("http://192.168.42.12:3579/api/v1/token/plextoken", "application/json", bytes.NewBuffer(req_body))
+		FullOmbiHostPath := s.OmbiHost + "/api/v1/token/plextoken"
+		resp, err := http.Post(FullOmbiHostPath, "application/json", bytes.NewBuffer(req_body))
 		
 		if err != nil {
 			return fmt.Errorf("Response error: %s", err)
 		}
 
-		defer resp.Body.Close()
-		
 		res_body, err := ioutil.ReadAll(resp.Body)
 		
 		if err != nil {
-			return fmt.Errorf("Response READ error: %s", err)
+			return fmt.Errorf("Response body read error: %s", err)
 		}
 		
-		s.logger.Debug("kodiak response_body", zap.String("res_body",string(res_body)))
+		authCookie := http.Cookie {
+			Name:		"Auth"
+			Value:		res_body
+			Domain:		"ombi.greatwhitelab.net"
+			HttpOnly:	false
+			SameSite:	SameSiteLaxMode
+			Path:		"/"
+			Secure:		false
+			Expires:	time.Now().Add(24*time.Hour)
+		}
 		
+		req.AddCookie(&authCookie)
+		
+		defer resp.Body.Close()
 		return handler.ServeHTTP(w, req) 
 	}
 	
@@ -104,7 +106,10 @@ func (s *plexsso) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			switch rootDirective {
 				case "token":
 					args := d.RemainingArgs()
-					s.TokenValue = args[0]				
+					s.TokenValue = args[0]		
+				case "host":
+					args := d.RemainingArgs()
+					s.OmbiHost = args[0]	
 				default:
 					return d.Errf("Unknown plexsso arg")
 			}
