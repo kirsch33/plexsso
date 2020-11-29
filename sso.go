@@ -103,7 +103,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 	
 func (s *plexsso) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	
-	for h.Next() {	
+	for d.Next() {	
 		args := d.RemainingArgs()
 		if len(args) > 0 {
 			return d.Errf("plexsso supports only nested args: %v", args)
