@@ -49,9 +49,10 @@ func parseCaddyfileHandler(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler,
 
 func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler caddyhttp.Handler) error {
 	
-	h := req.Header.Get("Referer")
+	ref := req.Header.Get("Referer")
+	host := req.Host
 
-	if h=="https://greatwhitelab.net/auth/portal" {
+	if ref=="https://greatwhitelab.net/auth/portal" && host=="ombi.greatwhitelab.net" {
 		
 		req_body, err := json.Marshal(map[string]string{"plexToken":s.TokenValue})
 
@@ -77,7 +78,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		authCookie := http.Cookie {
 			Name:		"Auth",
 			Value:		string(res_body),
-			Domain:		"ombi.greatwhitelab.net",
+			Domain:		"greatwhitelab.net",
 			HttpOnly:	false,
 			SameSite:	http.SameSiteLaxMode,
 			Path:		"/",
