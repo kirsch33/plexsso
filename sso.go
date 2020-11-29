@@ -21,12 +21,12 @@ type plexsso struct {
 	logger *zap.Logger
 }
 
-type OmbiToken {
+type OmbiToken struct {
 	TokenValue string `json:"access_token,omitempty"`
 	Expiration string `json:"expiration,omitempty"`
 }
 
-type PlexToken {
+type PlexToken struct {
 	TokenValue string `json:"plexToken,omitempty"`
 }
 
