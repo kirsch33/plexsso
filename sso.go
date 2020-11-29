@@ -48,9 +48,7 @@ func (plexsso) CaddyModule() caddy.ModuleInfo {
 func parseCaddyfileHandler(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
 	var s plexsso
 	err := s.UnmarshalCaddyfile(h.Dispenser)
-	if err != nil {
-		return nil, err
-	}
+
 	return s, err
 }
 
