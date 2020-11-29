@@ -1,7 +1,7 @@
 package plexsso
 
 import (
-	//"fmt"
+	"fmt"
 	"net/http"
 	"bytes"
 	"encoding/json"
