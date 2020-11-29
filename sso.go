@@ -17,13 +17,13 @@ import (
 	//"go.uber.org/zap/zapcore"
 )
 
-type plexsso struct {
-	plex_token string
-	logger *zap.Logger
-}
-
 type token struct {
 	plexToken string
+}
+
+type plexsso struct {
+	TokenValue string
+	logger *zap.Logger
 }
 
 func init() {
@@ -63,13 +63,13 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 	
 	//u := req.URL.String()
 	h := req.Header.Get("Referer")
-	s.logger.Debug("kodiak plex_token", zap.String("plex_token", s.plex_token))
+	s.logger.Debug("kodiak plex_token", zap.String("plex_token", s.TokenValue))
 	//s.logger.Debug("kodiak u", zap.String("u",string(u)))
 	//s.logger.Debug("kodiak h", zap.String("h",string(h)))
 	
 	//if u=="https://ombi.greatwhitelab.net/" && h=="https://greatwhitelab.net/auth/portal" {
 	if h=="https://greatwhitelab.net/auth/portal" {
-		t := token{s.plex_token}
+		t := token{s.TokenValue}
 		req_body, err := json.Marshal(t)
 		
 		
@@ -114,7 +114,7 @@ func (s *plexsso) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			switch rootDirective {
 				case "token":
 					args := d.RemainingArgs()
-					s.plex_token = args[0]				
+					s.TokenValue = args[0]				
 				default:
 					return d.Errf("Unknown plexsso arg")
 			}
