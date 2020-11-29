@@ -102,19 +102,22 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 }
 	
 func (s *plexsso) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
-	d.NextArg()
 	
-	for d.NextBlock(0) {	
-		var err error
+	for h.Next() {	
+		args := d.RemainingArgs()
+		if len(args) > 0 {
+			return d.Errf("plexsso supports only nested args: %v", args)
+		}
 		
-		switch d.Val() {
-			case "token":
-				err = parseStringArg(d, &s.plex_token)
-			default:
-				return d.Errf("Unknown plexsso arg")
+		for nesting := d.Nesting(); d.NextBlock(nesting); {
+			rootDirective := d.Val()
+			switch rootDirective {
+				case "token":
+					args := d.RemainingArgs()
+					s.plex_token = args[0]				
+				default:
+					return d.Errf("Unknown plexsso arg")
 			}
-			if err != nil {
-				return d.Errf("Error parsing %s: %s", d.Val(), err)
 		}
 	}
 	return nil
