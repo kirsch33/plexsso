@@ -62,13 +62,14 @@ func parseStringArg(d *caddyfile.Dispenser, out *string) error {
 
 func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler caddyhttp.Handler) error {
 	
-	u := req.URL.String()
+	//u := req.URL.String()
 	h := req.Header.Get("Referer")
 	
-	s.logger.Debug("kodiak u", zap.String("u",string(u)))
-	s.logger.Debug("kodiak h", zap.String("h",string(h)))
+	//s.logger.Debug("kodiak u", zap.String("u",string(u)))
+	//s.logger.Debug("kodiak h", zap.String("h",string(h)))
 	
-	if u=="https://ombi.greatwhitelab.net/" && h=="https://greatwhitelab.net/auth/portal" {
+	//if u=="https://ombi.greatwhitelab.net/" && h=="https://greatwhitelab.net/auth/portal" {
+	if h=="https://greatwhitelab.net/auth/portal" {
 		
 		req_body, err := json.Marshal(map[string]string{"plexToken": s.plex_token})
 		
