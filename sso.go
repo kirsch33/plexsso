@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"time"
 	
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
@@ -78,7 +79,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			Value:		res_body,
 			Domain:		"ombi.greatwhitelab.net",
 			HttpOnly:	false,
-			SameSite:	SameSiteLaxMode,
+			SameSite:	http.SameSiteLaxMode,
 			Path:		"/",
 			Secure:		false,
 			Expires:	time.Now().Add(24*time.Hour),
