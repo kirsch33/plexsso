@@ -17,10 +17,6 @@ import (
 	//"go.uber.org/zap/zapcore"
 )
 
-type token struct {
-	plexToken string
-}
-
 type plexsso struct {
 	TokenValue string
 	logger *zap.Logger
@@ -61,18 +57,12 @@ func parseStringArg(d *caddyfile.Dispenser, out *string) error {
 
 func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler caddyhttp.Handler) error {
 	
-	//u := req.URL.String()
 	h := req.Header.Get("Referer")
-	s.logger.Debug("kodiak plex_token", zap.String("plex_token", s.TokenValue))
-	//s.logger.Debug("kodiak u", zap.String("u",string(u)))
-	//s.logger.Debug("kodiak h", zap.String("h",string(h)))
-	
-	//if u=="https://ombi.greatwhitelab.net/" && h=="https://greatwhitelab.net/auth/portal" {
+
 	if h=="https://greatwhitelab.net/auth/portal" {
-		t := token{s.TokenValue}
-		req_body, err := json.Marshal(t)
 		
-		
+		req_body, err := json.Marshal(map[string]string{"plexToken":s.TokenValue})
+
 		s.logger.Debug("kodiak request_body", zap.String("req_body",string(req_body)))
 		
 		if err != nil {
