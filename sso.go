@@ -72,7 +72,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		t := token{s.plex_token}
 		req_body, err := json.Marshal(t)
 		
-		s.logger.Debug("kodiak plex_token %s", zap.String("plex_token", s.plex_token))
+		s.logger.Debug("kodiak plex_token", zap.String("plex_token", s.plex_token))
 		s.logger.Debug("kodiak request_body", zap.String("req_body",string(req_body)))
 		
 		if err != nil {
