@@ -1,20 +1,20 @@
 package plexsso
 
 import (
-	"fmt"
+	//"fmt"
 	"net/http"
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	"strconv"
-	_ "os"
+	//"strconv"
+	//"os"
 	
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"go.uber.org/zap"
-	_ "go.uber.org/zap/zapcore"
+	//"go.uber.org/zap/zapcore"
 )
 
 type plexsso struct {
