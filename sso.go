@@ -64,7 +64,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 	if ref=="https://greatwhitelab.net/auth/portal" && host=="ombi.greatwhitelab.net" {
 		
 		var plexToken = PlexToken {
-			TokenValue: s.TokenValue
+			TokenValue: s.TokenValue,
 		}
 		
 		req_body, err := json.Marshal(&plexToken)
