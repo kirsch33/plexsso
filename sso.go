@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"strconv"
 	_ "os"
 	
 	"github.com/caddyserver/caddy/v2"
@@ -70,8 +71,10 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 	
 	//if u=="https://ombi.greatwhitelab.net/" && h=="https://greatwhitelab.net/auth/portal" {
 	if h=="https://greatwhitelab.net/auth/portal" {
+		quoted_token := strconv.Quote(s.plex_token)
+		req_body, err := json.Marshal(map[string]string{"plexToken":quoted_token})
 		
-		req_body, err := json.Marshal(map[string]string{"plexToken": s.plex_token})
+		s.logger.Debug("kodiak request_body", zap.String("req_body",string(req_body)))
 		
 		if err != nil {
 			return fmt.Errorf("Token formatting error: %s", err)
@@ -87,7 +90,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		
 		res_body, err := ioutil.ReadAll(resp.Body)
 		
-		s.logger.Debug("kodiak debug log", zap.String("res_body",string(res_body)))
+		s.logger.Debug("kodiak response_body", zap.String("res_body",string(res_body)))
 		
 		return handler.ServeHTTP(w, req) 
 	}
