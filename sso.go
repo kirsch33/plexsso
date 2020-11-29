@@ -21,6 +21,15 @@ type plexsso struct {
 	logger *zap.Logger
 }
 
+type OmbiToken {
+	TokenValue string `json:"access_token,omitempty"`
+	Expiration string `json:"expiration,omitempty"`
+}
+
+type PlexToken {
+	TokenValue string `json:"plexToken,omitempty"`
+}
+
 func init() {
 	caddy.RegisterModule(plexsso{})
 	httpcaddyfile.RegisterHandlerDirective("plexsso", parseCaddyfileHandler)
@@ -54,12 +63,16 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 
 	if ref=="https://greatwhitelab.net/auth/portal" && host=="ombi.greatwhitelab.net" {
 		
-		req_body, err := json.Marshal(map[string]string{"plexToken":s.TokenValue})
+		var plexToken = PlexToken {
+			TokenValue: s.TokenValue
+		}
+		
+		req_body, err := json.Marshal(&plexToken)
 
 		s.logger.Debug("kodiak request_body", zap.String("req_body",string(req_body)))
 		
 		if err != nil {
-			return fmt.Errorf("Token formatting error: %s", err)
+			return fmt.Errorf("Request token formatting error: %s", err)
 		}
 		
 		FullOmbiHostPath := s.OmbiHost + "/api/v1/token/plextoken"
@@ -84,15 +97,24 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		
 		body, err := ioutil.ReadAll(response.Body)
 		
+		if err != nil {
+			return fmt.Errorf("Response token formatting error: %s", err)
+		}
+		
 		s.logger.Debug("kodiak body", zap.String("body",string(body)))
 		
+		var ombiToken OmbiToken
+		err := json.Unmarshal(body, &ombiToken)
+		
 		if err != nil {
-			return fmt.Errorf("Response body error: %s", err)
+			return fmt.Errorf("Response form error: %s", err)
 		}
+		
+		s.logger.Debug("kodiak ombi toke value", zap.String("ombi token value",ombiToken.TokenValue))
 		
 		authCookie := http.Cookie {
 			Name:		"Auth",
-			Value:		string(body),
+			Value:		ombiToken.TokenValue,
 			Domain:		"greatwhitelab.net",
 			HttpOnly:	false,
 			SameSite:	http.SameSiteLaxMode,
