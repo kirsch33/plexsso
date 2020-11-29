@@ -104,7 +104,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		s.logger.Debug("kodiak body", zap.String("body",string(body)))
 		
 		var ombiToken OmbiToken
-		err := json.Unmarshal(body, &ombiToken)
+		err = json.Unmarshal(body, &ombiToken)
 		
 		if err != nil {
 			return fmt.Errorf("Response form error: %s", err)
