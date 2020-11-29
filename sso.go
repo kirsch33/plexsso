@@ -54,7 +54,6 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 
 	if ref=="https://greatwhitelab.net/auth/portal" && host=="ombi.greatwhitelab.net" {
 		
-		
 		req_body, err := json.Marshal(map[string]string{"plexToken":s.TokenValue})
 
 		s.logger.Debug("kodiak request_body", zap.String("req_body",string(req_body)))
@@ -71,16 +70,26 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		if err != nil {
 			return fmt.Errorf("Request error: %s", err)
 		}
-
-		response, err := ioutil.ReadAll(request.Body)
 		
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("Accept", "application/json")
+		
+		client := &http.Client{}
+    		response, err := client.Do(request)
+
 		if err != nil {
 			return fmt.Errorf("Response error: %s", err)
 		}
 		
+		body, err := ioutil.ReadAll(response.Body)
+		
+		if err != nil {
+			return fmt.Errorf("Response body error: %s", err)
+		}
+		
 		authCookie := http.Cookie {
 			Name:		"Auth",
-			Value:		string(response),
+			Value:		string(body),
 			Domain:		"greatwhitelab.net",
 			HttpOnly:	false,
 			SameSite:	http.SameSiteLaxMode,
@@ -91,7 +100,8 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		
 		req.AddCookie(&authCookie)
 		
-		defer request.Body.Close()
+		defer response.Body.Close()
+		
 		return handler.ServeHTTP(w, req) 
 	}
 	
