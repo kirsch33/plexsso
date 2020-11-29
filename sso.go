@@ -71,21 +71,14 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 	
 	//if u=="https://ombi.greatwhitelab.net/" && h=="https://greatwhitelab.net/auth/portal" {
 	if h=="https://greatwhitelab.net/auth/portal" {
-		quoted_token := strconv.Quote(s.plex_token)
-		req_body, err := json.Marshal(map[string]string{"plexToken":quoted_token})
+		t := token{s.plex_token}
+		req_body, err := json.Marshal(t)
 		
+		s.logger.Debug("kodiak plex_token", zap.String("plex_token",string(s.plex_token)))
 		s.logger.Debug("kodiak request_body", zap.String("req_body",string(req_body)))
 		
-		if err != nil {
-			return fmt.Errorf("Token formatting error: %s", err)
-		}
-		
 		resp, err := http.Post("http://192.168.42.12:3579/api/v1/token/plextoken", "application/json", bytes.NewBuffer(req_body))
-		
-		if err != nil {
-			return fmt.Errorf("Response error: %s", err)
-		}
-		
+
 		defer resp.Body.Close()
 		
 		res_body, err := ioutil.ReadAll(resp.Body)
