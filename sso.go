@@ -66,6 +66,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		
 		request, err := http.NewRequest("POST", FullOmbiHostPath, bytes.NewBuffer(req_body))
 		//resp, err := http.Post(FullOmbiHostPath, "application/json", bytes.NewBuffer(req_body))
+		s.logger.Debug("kodiak ombifullpath", zap.String("FullOmbiHostPath",string(FullOmbiHostPath)))
 		
 		if err != nil {
 			return fmt.Errorf("Request error: %s", err)
@@ -83,6 +84,8 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		
 		body, err := ioutil.ReadAll(response.Body)
 		
+		s.logger.Debug("kodiak body", zap.String("body",string(body)))
+		
 		if err != nil {
 			return fmt.Errorf("Response body error: %s", err)
 		}
@@ -98,7 +101,9 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			Expires:	time.Now().Add(24*time.Hour),
 		}
 		
-		req.AddCookie(&authCookie)
+		w.Header.Set("Location", string(req.Host+"/auth/cookie"))
+		s.logger.Debug("kodiak location", zap.String("location header",string(req.Host+"/auth/cookie")))
+		w.AddCookie(&authCookie)
 		
 		defer response.Body.Close()
 		
