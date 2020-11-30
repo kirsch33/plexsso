@@ -69,7 +69,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		
 		req_body, err := json.Marshal(&plexToken)
 
-		s.logger.Debug("kodiak request_body", zap.String("req_body",string(req_body)))
+		//s.logger.Debug("kodiak request_body", zap.String("req_body",string(req_body)))
 		
 		if err != nil {
 			return fmt.Errorf("Request token formatting error: %s", err)
@@ -79,7 +79,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		
 		request, err := http.NewRequest("POST", FullOmbiHostPath, bytes.NewBuffer(req_body))
 		//resp, err := http.Post(FullOmbiHostPath, "application/json", bytes.NewBuffer(req_body))
-		s.logger.Debug("kodiak ombifullpath", zap.String("FullOmbiHostPath",string(FullOmbiHostPath)))
+		//s.logger.Debug("kodiak ombifullpath", zap.String("FullOmbiHostPath",string(FullOmbiHostPath)))
 		
 		if err != nil {
 			return fmt.Errorf("Request error: %s", err)
@@ -101,7 +101,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			return fmt.Errorf("Response token formatting error: %s", err)
 		}
 		
-		s.logger.Debug("kodiak body", zap.String("body",string(body)))
+		//s.logger.Debug("kodiak body", zap.String("body",string(body)))
 		
 		var ombiToken OmbiToken
 		err = json.Unmarshal(body, &ombiToken)
@@ -110,7 +110,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			return fmt.Errorf("Response unmarshal error: %s", err)
 		}
 		
-		s.logger.Debug("kodiak ombi toke value", zap.String("ombi token value",ombiToken.TokenValue))
+		//s.logger.Debug("kodiak ombi toke value", zap.String("ombi token value",ombiToken.TokenValue))
 		
 		authCookie := http.Cookie {
 			Name:		"Auth",
@@ -123,9 +123,9 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			Expires:	time.Now().Add(24*time.Hour),
 		}
 		
-		w.Header().Set("Location", s.OmbiHost+"/auth/cookie")
+		w.Header().Set("Location", req.Host+"/auth/cookie")
 		w.WriteHeader(http.StatusFound)
-		s.logger.Debug("kodiak location", zap.String("location header",string(s.OmbiHost+"/auth/cookie")))
+		s.logger.Debug("kodiak location", zap.String("location header",req.Host+"/auth/cookie"))
 		w.Header().Set("Set-Cookie", authCookie.String())
 		s.logger.Debug("kodiak set cookie", zap.String("set-cookie",string(authCookie.String())))
 		
