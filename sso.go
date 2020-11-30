@@ -123,7 +123,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			Expires:	time.Now().Add(24*time.Hour),
 		}
 		
-		w.Header().Set("Location", string(req.Host+"/auth/cookie"))
+		w.Header().Set("Location", s.OmbiHost+"/auth/cookie")
 		w.WriteHeader(http.StatusFound)
 		s.logger.Debug("kodiak location", zap.String("location header",string(req.Host+"/auth/cookie")))
 		w.Header().Set("Set-Cookie", authCookie.String())
