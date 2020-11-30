@@ -107,7 +107,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		err = json.Unmarshal(body, &ombiToken)
 		
 		if err != nil {
-			return fmt.Errorf("Response form error: %s", err)
+			return fmt.Errorf("Response unmarshal error: %s", err)
 		}
 		
 		s.logger.Debug("kodiak ombi toke value", zap.String("ombi token value",ombiToken.TokenValue))
@@ -125,7 +125,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		
 		w.Header().Set("Location", s.OmbiHost+"/auth/cookie")
 		w.WriteHeader(http.StatusFound)
-		s.logger.Debug("kodiak location", zap.String("location header",string(req.Host+"/auth/cookie")))
+		s.logger.Debug("kodiak location", zap.String("location header",string(s.OmbiHost+"/auth/cookie")))
 		w.Header().Set("Set-Cookie", authCookie.String())
 		s.logger.Debug("kodiak set cookie", zap.String("set-cookie",string(authCookie.String())))
 		
