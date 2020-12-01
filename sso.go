@@ -82,14 +82,25 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		req_clone.Body = ioutil.NopCloser(bytes.NewBuffer(req_body))
 		//request, err := http.NewRequest("POST", FullOmbiHostPath, bytes.NewBuffer(req_body))
 		//resp, err := http.Post(FullOmbiHostPath, "application/json", bytes.NewBuffer(req_body))
-		//s.logger.Debug("kodiak ombifullpath", zap.String("FullOmbiHostPath",string(FullOmbiHostPath)))
+		
 		
 		//if err != nil {
 		//	return fmt.Errorf("Request error: %s", err)
 		//}
 		
+		req_clone.RequestURI = ""
 		req_clone.Header.Set("Content-Type", "application/json")
 		req_clone.Header.Set("Accept", "application/json")
+		
+		FullOmbiHostPath, err := url.Parse("https://" + host + "/api/v1/token/plextoken")
+		
+		s.logger.Debug("kodiak ombifullpath", zap.String("FullOmbiHostPath",string(FullOmbiHostPath)))
+   		
+		if err != nil {
+        		return fmt.Errorf("Request URL error: %s", err)
+    		}   
+		
+    		req_clone.URL = FullOmbiHostPath
 		
 		client := &http.Client{}
     		response, err := client.Do(req_clone)
