@@ -3,6 +3,7 @@ package plexsso
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
@@ -76,7 +77,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			return fmt.Errorf("Request token formatting error: %s", err)
 		}
 		
-		FullOmbiHostPath := host + "/api/v1/token/plextoken"
+		//FullOmbiHostPath := host + "/api/v1/token/plextoken"
 		
 		req_clone := req
 		req_clone.Body = ioutil.NopCloser(bytes.NewBuffer(req_body))
