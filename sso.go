@@ -69,7 +69,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			TokenValue: s.TokenValue,
 		}
 		
-		req_body, err := json.Marshal(&plexToken)
+		request_body, err := json.Marshal(&plexToken)
 
 		//s.logger.Debug("kodiak request_body", zap.String("req_body",string(req_body)))
 		
@@ -77,34 +77,40 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			return fmt.Errorf("Request token formatting error: %s", err)
 		}
 		
-		//FullOmbiHostPath := host + "/api/v1/token/plextoken"
+		FullOmbiHostPath := "https://" + host + "/api/v1/token/plextoken"
 		
-		req_clone := req
-		req_clone.Body = ioutil.NopCloser(bytes.NewBuffer(req_body))
-		//request, err := http.NewRequest("POST", FullOmbiHostPath, bytes.NewBuffer(req_body))
+		//req_clone := req
+		//req_clone.Body = ioutil.NopCloser(bytes.NewBuffer(req_body))
+		request, err := http.NewRequest("POST", FullOmbiHostPath, bytes.NewBuffer(request_body))
 		//resp, err := http.Post(FullOmbiHostPath, "application/json", bytes.NewBuffer(req_body))
 		
+		if err != nil {
+			return fmt.Errorf("Request error: %s", err)
+		}
 		
-		//if err != nil {
-		//	return fmt.Errorf("Request error: %s", err)
-		//}
+		//req_clone.RequestURI = ""
 		
-		req_clone.RequestURI = ""
-		req_clone.Header.Set("Content-Type", "application/json")
-		req_clone.Header.Set("Accept", "application/json")
+		req_cookies = req.Cookies()
 		
-		FullOmbiHostPath, err := url.Parse("https://" + host + "/api/v1/token/plextoken")
+		for i := range req_cookies {
+			request.AddCookie(cookies[i])
+		}
 		
-		s.logger.Debug("kodiak ombifullpath", zap.String("FullOmbiHostPath",FullOmbiHostPath.String()))
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("Accept", "application/json")
+		
+		//FullOmbiHostPath, err := url.Parse("https://" + host + "/api/v1/token/plextoken")
+		
+		s.logger.Debug("kodiak ombifullpath", zap.String("FullOmbiHostPath",string(FullOmbiHostPath)))
    		
 		if err != nil {
         		return fmt.Errorf("Request URL error: %s", err)
     		}   
 		
-    		req_clone.URL = FullOmbiHostPath
+    		//req_clone.URL = FullOmbiHostPath
 		
 		client := &http.Client{}
-    		response, err := client.Do(req_clone)
+    		response, err := client.Do(request)
 
 		if err != nil {
 			return fmt.Errorf("Response error: %s", err)
