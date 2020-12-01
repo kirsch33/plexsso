@@ -95,7 +95,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		
 		FullOmbiHostPath, err := url.Parse("https://" + host + "/api/v1/token/plextoken")
 		
-		s.logger.Debug("kodiak ombifullpath", zap.String("FullOmbiHostPath",string(FullOmbiHostPath)))
+		s.logger.Debug("kodiak ombifullpath", zap.String("FullOmbiHostPath",FullOmbiHostPath.String()))
    		
 		if err != nil {
         		return fmt.Errorf("Request URL error: %s", err)
