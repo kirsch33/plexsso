@@ -123,11 +123,11 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			Expires:	time.Now().Add(24*time.Hour),
 		}
 		
-		w.Header().Set("Location", req.Host+"/auth/cookie")
+		w.Header().Set("Location", "https://ombi.greatwhitelab.net/auth/cookie")
 		
-		s.logger.Debug("kodiak location", zap.String("location header",req.Host+"/auth/cookie"))
+		//s.logger.Debug("kodiak location", zap.String("location header",req.Host+"/auth/cookie"))
 		w.Header().Set("Set-Cookie", authCookie.String())
-		s.logger.Debug("kodiak set cookie", zap.String("set-cookie",string(authCookie.String())))
+		//s.logger.Debug("kodiak set cookie", zap.String("set-cookie",string(authCookie.String())))
 		w.WriteHeader(http.StatusFound)
 		defer response.Body.Close()
 		
