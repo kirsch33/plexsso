@@ -60,7 +60,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 	
 	ref := req.Header.Get("Referer")
 	host := req.Host
-	cookie, err := req.Cookie("Auth")
+	_, err := req.Cookie("Auth")
 	
 	if ref=="https://greatwhitelab.net/auth/portal" && host=="ombi.greatwhitelab.net" && err != nil {
 		
