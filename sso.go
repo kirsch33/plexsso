@@ -3,7 +3,7 @@ package plexsso
 import (
 	"fmt"
 	"net/http"
-	"net/url"
+	//"net/url"
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
@@ -90,10 +90,10 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		
 		//req_clone.RequestURI = ""
 		
-		req_cookies = req.Cookies()
+		req_cookies := req.Cookies()
 		
 		for i := range req_cookies {
-			request.AddCookie(cookies[i])
+			request.AddCookie(req_cookies[i])
 		}
 		
 		request.Header.Set("Content-Type", "application/json")
