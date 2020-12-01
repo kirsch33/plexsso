@@ -3,7 +3,6 @@ package plexsso
 import (
 	"fmt"
 	"net/http"
-	//"net/url"
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
@@ -79,16 +78,11 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		
 		FullOmbiHostPath := "https://" + host + "/api/v1/token/plextoken"
 		
-		//req_clone := req
-		//req_clone.Body = ioutil.NopCloser(bytes.NewBuffer(req_body))
 		request, err := http.NewRequest("POST", FullOmbiHostPath, bytes.NewBuffer(request_body))
-		//resp, err := http.Post(FullOmbiHostPath, "application/json", bytes.NewBuffer(req_body))
-		
+
 		if err != nil {
 			return fmt.Errorf("Request error: %s", err)
 		}
-		
-		//req_clone.RequestURI = ""
 		
 		req_cookies := req.Cookies()
 		
@@ -98,16 +92,10 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		
 		request.Header.Set("Content-Type", "application/json")
 		request.Header.Set("Accept", "application/json")
-		
-		//FullOmbiHostPath, err := url.Parse("https://" + host + "/api/v1/token/plextoken")
-		
-		s.logger.Debug("kodiak ombifullpath", zap.String("FullOmbiHostPath",string(FullOmbiHostPath)))
    		
 		if err != nil {
         		return fmt.Errorf("Request URL error: %s", err)
     		}   
-		
-    		//req_clone.URL = FullOmbiHostPath
 		
 		client := &http.Client{}
     		response, err := client.Do(request)
@@ -122,16 +110,12 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			return fmt.Errorf("Response token formatting error: %s", err)
 		}
 		
-		s.logger.Debug("kodiak body", zap.String("body",string(body)))
-		
 		var ombiToken OmbiToken
 		err = json.Unmarshal(body, &ombiToken)
 		
 		if err != nil {
 			return fmt.Errorf("Response unmarshal error: %s", err)
 		}
-		
-		//s.logger.Debug("kodiak ombi toke value", zap.String("ombi token value",ombiToken.TokenValue))
 		
 		authCookie := http.Cookie {
 			Name:		"Auth",
@@ -145,10 +129,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		}
 		
 		w.Header().Set("Location", "https://ombi.greatwhitelab.net/auth/cookie")
-		
-		//s.logger.Debug("kodiak location", zap.String("location header",req.Host+"/auth/cookie"))
 		w.Header().Set("Set-Cookie", authCookie.String())
-		//s.logger.Debug("kodiak set cookie", zap.String("set-cookie",string(authCookie.String())))
 		w.WriteHeader(http.StatusFound)
 		defer response.Body.Close()
 		
