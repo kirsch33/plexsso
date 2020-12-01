@@ -76,21 +76,23 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			return fmt.Errorf("Request token formatting error: %s", err)
 		}
 		
-		FullOmbiHostPath := s.OmbiHost + "/api/v1/token/plextoken"
+		FullOmbiHostPath := host + "/api/v1/token/plextoken"
 		
-		request, err := http.NewRequest("POST", FullOmbiHostPath, bytes.NewBuffer(req_body))
+		req_clone := req
+		req_clone.Body = ioutil.NopCloser(bytes.NewBuffer(req_body))
+		//request, err := http.NewRequest("POST", FullOmbiHostPath, bytes.NewBuffer(req_body))
 		//resp, err := http.Post(FullOmbiHostPath, "application/json", bytes.NewBuffer(req_body))
 		//s.logger.Debug("kodiak ombifullpath", zap.String("FullOmbiHostPath",string(FullOmbiHostPath)))
 		
-		if err != nil {
-			return fmt.Errorf("Request error: %s", err)
-		}
+		//if err != nil {
+		//	return fmt.Errorf("Request error: %s", err)
+		//}
 		
-		request.Header.Set("Content-Type", "application/json")
-		request.Header.Set("Accept", "application/json")
+		req_clone.Header.Set("Content-Type", "application/json")
+		req_clone.Header.Set("Accept", "application/json")
 		
 		client := &http.Client{}
-    		response, err := client.Do(request)
+    		response, err := client.Do(req_clone)
 
 		if err != nil {
 			return fmt.Errorf("Response error: %s", err)
@@ -102,7 +104,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			return fmt.Errorf("Response token formatting error: %s", err)
 		}
 		
-		//s.logger.Debug("kodiak body", zap.String("body",string(body)))
+		s.logger.Debug("kodiak body", zap.String("body",string(body)))
 		
 		var ombiToken OmbiToken
 		err = json.Unmarshal(body, &ombiToken)
