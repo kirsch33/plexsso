@@ -59,10 +59,10 @@ func parseCaddyfileHandler(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler,
 func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler caddyhttp.Handler) error {
 	
 	ref := req.Header.Get("Referer")
-	location := req.Header.Get("Location")
 	host := req.Host
-
-	if ref=="https://greatwhitelab.net/auth/portal" && host=="ombi.greatwhitelab.net" && location != "https://ombi.greatwhitelab.net/auth/cookie" {
+	cookie, err := req.Cookie("Auth")
+	
+	if ref=="https://greatwhitelab.net/auth/portal" && host=="ombi.greatwhitelab.net" && err != nil {
 		
 		var plexToken = PlexToken {
 			TokenValue: s.TokenValue,
