@@ -119,7 +119,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			HttpOnly:	false,
 			SameSite:	http.SameSiteLaxMode,
 			Path:		"/",
-			Secure:		false,
+			Secure:		true,
 			Expires:	time.Now().Add(24*time.Hour),
 		}
 		
