@@ -86,8 +86,6 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 				}
 
 				request_url := "https://" + host + "/api/v1/token/plextoken"
-				
-				s.logger.Debug("kodiak request_url", zap.String("request_url",request_url))
 
 				request, err := http.NewRequest("POST", request_url, bytes.NewBuffer(request_body))
 
