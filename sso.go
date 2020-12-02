@@ -43,7 +43,7 @@ func init() {
 
 func (s *plexsso) Provision(ctx caddy.Context) error {
 	s.logger = ctx.Logger(s) 
-	s.UserEntry = make([]User, 0)
+	s.UserEntry = make([]UserTest, 0)
 	return nil
 }
 
