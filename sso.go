@@ -71,11 +71,11 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 	_, err := req.Cookie("Auth")
 	
 	if referer==s.Referer && host==s.OmbiHost && err != nil {
-		for i := range s.User {
-			if s.User.Name[i] == subject {
+		for i := range s.UserEntry {
+			if s.UserEntry.Name[i] == subject {
 		
 				var plex_token = PlexToken {
-					TokenValue: s.User.TokenValue[i],
+					TokenValue: s.UserEntry.TokenValue[i],
 				}
 
 				request_body, err := json.Marshal(&plex_token)
@@ -158,8 +158,9 @@ func (s *plexsso) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			switch rootDirective {
 				case "user":
 					args := d.RemainingArgs()
-					s.User.Name = append(s.User.Name, args[0])	
-					s.User.TokenValue = append(s.User.TokenValue, args[1])
+					
+				Entry.Name = append(s.UserEntry.Name, args[0])	
+					s.UserEntry.TokenValue = append(s.UserEntry.TokenValue, args[1])
 				case "host":
 					args := d.RemainingArgs()
 					s.OmbiHost = args[0]	
