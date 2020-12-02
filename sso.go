@@ -30,7 +30,7 @@ type PlexToken struct {
 }
 
 type plexsso struct {
-	UserEntry []User
+	UserEntry []*User
 	OmbiHost string
 	Referer string
 	logger *zap.Logger
