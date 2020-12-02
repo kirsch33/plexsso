@@ -66,75 +66,80 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 	
 	//s.logger.Debug("kodiak request_body", zap.String("req_body",string(req_body)))
 	referer := req.Header.Get("Referer")
+	subject := req.Header.Get("X-Token-Subject")
 	host := req.Host
 	_, err := req.Cookie("Auth")
 	
 	if referer==s.Referer && host==s.OmbiHost && err != nil {
+		for i := range s.User {
+			if s.User.Name[i] == subject {
 		
-		var plex_token = PlexToken {
-			TokenValue: s.TokenValue,
-		}
-		
-		request_body, err := json.Marshal(&plex_token)
-		
-		if err != nil {
-			return fmt.Errorf("Request token formatting error: %s", err)
-		}
-		
-		request_url := "https://" + host + "/api/v1/token/plextoken"
-		
-		request, err := http.NewRequest("POST", request_url, bytes.NewBuffer(request_body))
+				var plex_token = PlexToken {
+					TokenValue: s.User.TokenValue[i],
+				}
 
-		if err != nil {
-			return fmt.Errorf("Request error: %s", err)
-		}
-		
-		req_cookies := req.Cookies()
-		
-		for i := range req_cookies {
-			request.AddCookie(req_cookies[i])
-		}
-		
-		request.Header.Set("Content-Type", "application/json")
-		request.Header.Set("Accept", "application/json")
-   		
-		client := &http.Client{}
-    		response, err := client.Do(request)
+				request_body, err := json.Marshal(&plex_token)
 
-		if err != nil {
-			return fmt.Errorf("Response error: %s", err)
+				if err != nil {
+					return fmt.Errorf("Request token formatting error: %s", err)
+				}
+
+				request_url := "https://" + host + "/api/v1/token/plextoken"
+
+				request, err := http.NewRequest("POST", request_url, bytes.NewBuffer(request_body))
+
+				if err != nil {
+					return fmt.Errorf("Request error: %s", err)
+				}
+
+				req_cookies := req.Cookies()
+
+				for i := range req_cookies {
+					request.AddCookie(req_cookies[i])
+				}
+
+				request.Header.Set("Content-Type", "application/json")
+				request.Header.Set("Accept", "application/json")
+
+				client := &http.Client{}
+				response, err := client.Do(request)
+
+				if err != nil {
+					return fmt.Errorf("Response error: %s", err)
+				}
+
+				response_body, err := ioutil.ReadAll(response.Body)
+
+				if err != nil {
+					return fmt.Errorf("Response body read error: %s", err)
+				}
+
+				var ombi_token OmbiToken
+				err = json.Unmarshal(response_body, &ombi_token)
+
+				if err != nil {
+					return fmt.Errorf("Response body unmarshal error: %s", err)
+				}
+
+				auth_cookie := http.Cookie {
+					Name:		"Auth",
+					Value:		ombi_token.TokenValue,
+					Domain:		"greatwhitelab.net",
+					HttpOnly:	false,
+					SameSite:	http.SameSiteLaxMode,
+					Path:		"/",
+					Secure:		true,
+					Expires:	time.Now().Add(24*time.Hour),
+				}
+
+				w.Header().Set("Location", string("https://" + host + "/auth/cookie"))
+				w.Header().Set("Set-Cookie", auth_cookie.String())
+				w.WriteHeader(http.StatusFound)
+				defer response.Body.Close()
+
+				return handler.ServeHTTP(w, req) 
+			}
 		}
-		
-		response_body, err := ioutil.ReadAll(response.Body)
-		
-		if err != nil {
-			return fmt.Errorf("Response body read error: %s", err)
-		}
-		
-		var ombi_token OmbiToken
-		err = json.Unmarshal(response_body, &ombi_token)
-		
-		if err != nil {
-			return fmt.Errorf("Response body unmarshal error: %s", err)
-		}
-		
-		auth_cookie := http.Cookie {
-			Name:		"Auth",
-			Value:		ombi_token.TokenValue,
-			Domain:		"greatwhitelab.net",
-			HttpOnly:	false,
-			SameSite:	http.SameSiteLaxMode,
-			Path:		"/",
-			Secure:		true,
-			Expires:	time.Now().Add(24*time.Hour),
-		}
-		
-		w.Header().Set("Location", string("https://" + host + "/auth/cookie"))
-		w.Header().Set("Set-Cookie", auth_cookie.String())
-		w.WriteHeader(http.StatusFound)
-		defer response.Body.Close()
-		
-		return handler.ServeHTTP(w, req) 
 	}
 	
 	return handler.ServeHTTP(w, req)
