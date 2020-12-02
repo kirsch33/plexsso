@@ -159,7 +159,8 @@ func (s *plexsso) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			switch rootDirective {
 				case "user":
 					args := d.RemainingArgs()
-					s.UserEntry = append(s.UserEntry, args[0], args[1])	
+					x := &User{Name: args[0], TokenValue: args[1]}
+					s.UserEntry = append(s.UserEntry, x)	
 				case "host":
 					args := d.RemainingArgs()
 					s.OmbiHost = args[0]	
