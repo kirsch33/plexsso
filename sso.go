@@ -30,7 +30,7 @@ type PlexToken struct {
 }
 
 type plexsso struct {
-	UserEntry []*User
+	UserEntry []User
 	OmbiHost string
 	Referer string
 	logger *zap.Logger
@@ -43,7 +43,7 @@ func init() {
 
 func (s *plexsso) Provision(ctx caddy.Context) error {
 	s.logger = ctx.Logger(s) 
-	s.UserEntry = new(User)
+	s.UserEntry = make([]User, 0)
 	return nil
 }
 
