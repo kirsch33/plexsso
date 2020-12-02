@@ -10,10 +10,13 @@ jwt {
 }
 
 plexsso {
-  user USER_NAME PLEX_TOKEN
+  #you can define multiple users if desired
+  user USER_NAME PLEX_TOKEN 
   host ombi.example.net
   referer https://example.net/auth/portal/
 }
 ```
   
 It is required to create the plexsso object after the jwt object in your Caddyfile and to enable claim headers as shown above. 
+
+I plan to follow up at a later date with a more detailed documentation of my use case and how others can take advantage of it or modify to suite their needs.
