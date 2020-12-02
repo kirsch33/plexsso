@@ -43,7 +43,7 @@ func init() {
 
 func (s *plexsso) Provision(ctx caddy.Context) error {
 	s.logger = ctx.Logger(s) 
-	s.UserEntry = make([]User, 0)
+	//s.UserEntry = make([]User, 0)
 	return nil
 }
 
@@ -72,7 +72,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 	_, err := req.Cookie("Auth")
 	
 	if referer==s.Referer && host==s.OmbiHost && err != nil {
-		for i := range s.UserEntry {
+		for _, i := range s.UserEntry {
 			if s.UserEntry.Name[i] == subject {
 		
 				var plex_token = PlexToken {
@@ -95,8 +95,8 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 
 				req_cookies := req.Cookies()
 
-				for i := range req_cookies {
-					request.AddCookie(req_cookies[i])
+				for x := range req_cookies {
+					request.AddCookie(req_cookies[x])
 				}
 
 				request.Header.Set("Content-Type", "application/json")
