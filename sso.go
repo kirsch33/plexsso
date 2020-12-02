@@ -73,10 +73,10 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 	
 	if referer==s.Referer && host==s.OmbiHost && err != nil {
 		for _, x := range s.UserEntry {
-			if x.UserEntry.Name == subject {
+			if x.Name == subject {
 		
 				var plex_token = PlexToken {
-					TokenValue: x.UserEntry.TokenValue,
+					TokenValue: x.TokenValue,
 				}
 
 				request_body, err := json.Marshal(&plex_token)
