@@ -15,10 +15,9 @@ import (
 	"go.uber.org/zap"
 )
 
-type plexsso struct {
+type User struct {
+	Name string
 	TokenValue string
-	OmbiHost string
-	logger *zap.Logger
 }
 
 type OmbiToken struct {
@@ -28,6 +27,13 @@ type OmbiToken struct {
 
 type PlexToken struct {
 	TokenValue string `json:"plexToken,omitempty"`
+}
+
+type plexsso struct {
+	UserEntry User[]
+	OmbiHost string
+	Referer string
+	logger *zap.Logger
 }
 
 func init() {
@@ -58,27 +64,26 @@ func parseCaddyfileHandler(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler,
 
 func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler caddyhttp.Handler) error {
 	
-	ref := req.Header.Get("Referer")
+	//s.logger.Debug("kodiak request_body", zap.String("req_body",string(req_body)))
+	referer := req.Header.Get("Referer")
 	host := req.Host
 	_, err := req.Cookie("Auth")
 	
-	if ref=="https://greatwhitelab.net/auth/portal" && host=="ombi.greatwhitelab.net" && err != nil {
+	if referer==s.Referer && host==s.OmbiHost && err != nil {
 		
-		var plexToken = PlexToken {
+		var plex_token = PlexToken {
 			TokenValue: s.TokenValue,
 		}
 		
-		request_body, err := json.Marshal(&plexToken)
-
-		//s.logger.Debug("kodiak request_body", zap.String("req_body",string(req_body)))
+		request_body, err := json.Marshal(&plex_token)
 		
 		if err != nil {
 			return fmt.Errorf("Request token formatting error: %s", err)
 		}
 		
-		FullOmbiHostPath := "https://" + host + "/api/v1/token/plextoken"
+		request_url := "https://" + host + "/api/v1/token/plextoken"
 		
-		request, err := http.NewRequest("POST", FullOmbiHostPath, bytes.NewBuffer(request_body))
+		request, err := http.NewRequest("POST", request_url, bytes.NewBuffer(request_body))
 
 		if err != nil {
 			return fmt.Errorf("Request error: %s", err)
@@ -93,10 +98,6 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 		request.Header.Set("Content-Type", "application/json")
 		request.Header.Set("Accept", "application/json")
    		
-		if err != nil {
-        		return fmt.Errorf("Request URL error: %s", err)
-    		}   
-		
 		client := &http.Client{}
     		response, err := client.Do(request)
 
@@ -104,22 +105,22 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			return fmt.Errorf("Response error: %s", err)
 		}
 		
-		body, err := ioutil.ReadAll(response.Body)
+		response_body, err := ioutil.ReadAll(response.Body)
 		
 		if err != nil {
-			return fmt.Errorf("Response token formatting error: %s", err)
+			return fmt.Errorf("Response body read error: %s", err)
 		}
 		
-		var ombiToken OmbiToken
-		err = json.Unmarshal(body, &ombiToken)
+		var ombi_token OmbiToken
+		err = json.Unmarshal(response_body, &ombi_token)
 		
 		if err != nil {
-			return fmt.Errorf("Response unmarshal error: %s", err)
+			return fmt.Errorf("Response body unmarshal error: %s", err)
 		}
 		
-		authCookie := http.Cookie {
+		auth_cookie := http.Cookie {
 			Name:		"Auth",
-			Value:		ombiToken.TokenValue,
+			Value:		ombi_token.TokenValue,
 			Domain:		"greatwhitelab.net",
 			HttpOnly:	false,
 			SameSite:	http.SameSiteLaxMode,
@@ -128,8 +129,8 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 			Expires:	time.Now().Add(24*time.Hour),
 		}
 		
-		w.Header().Set("Location", "https://ombi.greatwhitelab.net/auth/cookie")
-		w.Header().Set("Set-Cookie", authCookie.String())
+		w.Header().Set("Location", string("https://" + host + "/auth/cookie"))
+		w.Header().Set("Set-Cookie", auth_cookie.String())
 		w.WriteHeader(http.StatusFound)
 		defer response.Body.Close()
 		
@@ -150,12 +151,16 @@ func (s *plexsso) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 		for nesting := d.Nesting(); d.NextBlock(nesting); {
 			rootDirective := d.Val()
 			switch rootDirective {
-				case "token":
+				case "user":
 					args := d.RemainingArgs()
-					s.TokenValue = args[0]		
+					s.User.Name = append(s.User.Name, args[0])	
+					s.User.TokenValue = append(s.User.TokenValue, args[1])
 				case "host":
 					args := d.RemainingArgs()
 					s.OmbiHost = args[0]	
+				case "referer":
+					args := d.RemainingArgs()
+					s.Referer = args[0]
 				default:
 					return d.Errf("Unknown plexsso arg")
 			}
