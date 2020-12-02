@@ -37,14 +37,13 @@ type plexsso struct {
 }
 
 func init() {
-	s.UserEntry = make([]User, 0)
 	caddy.RegisterModule(plexsso{})
 	httpcaddyfile.RegisterHandlerDirective("plexsso", parseCaddyfileHandler)
 }
 
 func (s *plexsso) Provision(ctx caddy.Context) error {
 	s.logger = ctx.Logger(s) 
-	
+	s.UserEntry = make([]User, 0)
 	return nil
 }
 
