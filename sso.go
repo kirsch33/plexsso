@@ -30,7 +30,7 @@ type PlexToken struct {
 }
 
 type plexsso struct {
-	UserEntry []User
+	UserEntry []*User
 	OmbiHost string
 	Referer string
 	logger *zap.Logger
@@ -158,8 +158,7 @@ func (s *plexsso) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			switch rootDirective {
 				case "user":
 					args := d.RemainingArgs()
-					
-				Entry.Name = append(s.UserEntry.Name, args[0])	
+					s.UserEntry.Name = append(s.UserEntry.Name, args[0])	
 					s.UserEntry.TokenValue = append(s.UserEntry.TokenValue, args[1])
 				case "host":
 					args := d.RemainingArgs()
