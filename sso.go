@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type User struct {
+type UserTest struct {
 	Name string
 	TokenValue string
 }
@@ -30,7 +30,7 @@ type PlexToken struct {
 }
 
 type plexsso struct {
-	UserEntry []User
+	UserEntry []UserTest
 	OmbiHost string
 	Referer string
 	logger *zap.Logger
