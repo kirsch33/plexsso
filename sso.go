@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type UserTest struct {
+type User struct {
 	Name string
 	TokenValue string
 }
@@ -30,7 +30,7 @@ type PlexToken struct {
 }
 
 type plexsso struct {
-	UserEntry []UserTest
+	UserEntry []User
 	OmbiHost string
 	Referer string
 	logger *zap.Logger
@@ -43,7 +43,7 @@ func init() {
 
 func (s *plexsso) Provision(ctx caddy.Context) error {
 	s.logger = ctx.Logger(s) 
-	s.UserEntry = make([]UserTest, 0)
+	s.UserEntry = make([]User, 0)
 	return nil
 }
 
