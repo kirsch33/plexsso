@@ -71,8 +71,12 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 	host := req.Host
 	_, err := req.Cookie("Auth")
 	
+	s.logger.Debug("kodiak subject", zap.String("subject",subject))
+	
 	if referer==s.Referer && host==s.OmbiHost && err != nil {
 		for _, x := range s.UserEntry {
+			s.logger.Debug("kodiak x.Name", zap.String("x.Name",x.Name))
+			s.logger.Debug("kodiak x.TokenValue", zap.String("x.TokenValue",x.TokenValue))
 			if x.Name == subject {
 		
 				var plex_token = PlexToken {
@@ -86,6 +90,8 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 				}
 
 				request_url := "https://" + host + "/api/v1/token/plextoken"
+				
+				s.logger.Debug("kodiak request_url", zap.String("request_url",request_url))
 
 				request, err := http.NewRequest("POST", request_url, bytes.NewBuffer(request_body))
 
