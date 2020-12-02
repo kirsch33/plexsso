@@ -125,7 +125,7 @@ func (s plexsso) ServeHTTP(w http.ResponseWriter, req *http.Request, handler cad
 				auth_cookie := http.Cookie {
 					Name:		"Auth",
 					Value:		ombi_token.TokenValue,
-					Domain:		"greatwhitelab.net",
+					Domain:		host,
 					HttpOnly:	false,
 					SameSite:	http.SameSiteLaxMode,
 					Path:		"/",
